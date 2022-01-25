@@ -29,18 +29,31 @@ impl Bindings {
 
     pub fn merge(&mut self, other: Bindings) {
         for (name, action_set) in other.action_sets {
-            let bindings = self.action_sets.entry(name).or_default();
+            let bindings = self
+                .action_sets
+                .entry(name)
+                .or_insert_with(ActionSetBindings::empty);
             bindings.merge(action_set);
         }
     }
+
+    pub fn clear(&mut self) {
+        self.action_sets.clear();
+    }
 }
 
-#[derive(Debug, Default)]
+#[derive(Debug)]
 pub struct ActionSetBindings {
     pub actions: HashMap<String, Vec<Binding>>,
 }
 
 impl ActionSetBindings {
+    pub fn empty() -> Self {
+        Self {
+            actions: HashMap::new(),
+        }
+    }
+
     pub fn new<A, N, Bs, B>(actions: A) -> Self
     where
         A: IntoIterator<Item = (N, Bs)>,

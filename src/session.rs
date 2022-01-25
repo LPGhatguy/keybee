@@ -20,24 +20,21 @@ struct SessionInner {
     next_action_id: AtomicUsize,
 }
 
-#[derive(Default)]
-struct BindingsCache {
-    action_name_to_index: HashMap<String, usize>,
-    bindings: Vec<Vec<Binding>>,
-}
-
 impl Session {
+    /// Create a new Keybee Session.
     pub fn new() -> Self {
         let inner = Arc::new(SessionInner {
             input: RwLock::new(InputState::new()),
             bindings: RwLock::new(Bindings::empty()),
-            bindings_cache: RwLock::new(BindingsCache::default()),
+            bindings_cache: RwLock::new(BindingsCache::new()),
             next_action_id: AtomicUsize::new(0),
         });
 
         Self { inner }
     }
 
+    /// Create a new action set with the given name.
+    #[must_use]
     pub fn create_action_set(&self, name: &'static str) -> ActionSet {
         ActionSet {
             session: self.inner.clone(),
@@ -46,6 +43,17 @@ impl Session {
         }
     }
 
+    /// Clear all bindings in the session.
+    pub fn clear_bindings(&self) {
+        let mut bindings = self.inner.bindings.write();
+        let mut bindings_cache = self.inner.bindings_cache.write();
+
+        bindings.clear();
+        bindings_cache.clear();
+    }
+
+    /// Apply the given bindings to the session, merging them with the existing
+    /// set of bindings.
     pub fn use_bindings(&self, new: Bindings) {
         let mut bindings = self.inner.bindings.write();
         let mut bindings_cache = self.inner.bindings_cache.write();
@@ -71,24 +79,50 @@ impl Session {
         }
     }
 
+    /// Process an event from gilrs.
     #[cfg(feature = "gilrs")]
     pub fn handle_gilrs_event(&mut self, event: &gilrs::Event) {
         let mut input = self.inner.input.write();
         input.handle_gilrs_event(event);
     }
 
+    /// Process an event from winit.
     #[cfg(feature = "winit")]
     pub fn handle_winit_event<T>(&mut self, event: &winit::event::Event<T>) {
         let mut input = self.inner.input.write();
         input.handle_winit_event(event);
     }
 
+    /// Indicate to Keybee that a game update has just run. This resets any
+    /// edge-triggered inputs like buttons or mouse motion.
     pub fn end_update(&mut self) {
         let mut input = self.inner.input.write();
         input.end_update();
     }
 }
 
+struct BindingsCache {
+    action_name_to_index: HashMap<String, usize>,
+    bindings: Vec<Vec<Binding>>,
+}
+
+impl BindingsCache {
+    fn new() -> Self {
+        Self {
+            action_name_to_index: HashMap::new(),
+            bindings: Vec::new(),
+        }
+    }
+
+    fn clear(&mut self) {
+        self.action_name_to_index.clear();
+        self.bindings.clear();
+    }
+}
+
+/// Defines a group of actions that a player can perform.
+///
+/// Created with [`Session::create_action_set`].
 pub struct ActionSet {
     session: Arc<SessionInner>,
     enabled: Arc<AtomicBool>,
@@ -96,6 +130,8 @@ pub struct ActionSet {
 }
 
 impl ActionSet {
+    /// Create a new action that can be activated by the player.
+    #[must_use]
     pub fn create_action<K: ActionKind>(&self, name: &'static str) -> Action<K> {
         let id = self.session.next_action_id.fetch_add(1, Ordering::SeqCst);
         let full_name = format!("{}/{}", self.name, name);
@@ -109,11 +145,15 @@ impl ActionSet {
         }
     }
 
+    /// Enable or disable all actions within this action set.
     pub fn set_enabled(&self, value: bool) {
         self.enabled.store(value, Ordering::SeqCst);
     }
 }
 
+/// Defines something that a player can do.
+///
+/// Created with [`ActionSet::create_action`].
 pub struct Action<K> {
     session: Arc<SessionInner>,
     set_enabled: Arc<AtomicBool>,
@@ -123,6 +163,8 @@ pub struct Action<K> {
 }
 
 impl<K: ActionKind> Action<K> {
+    /// Get the current state of the action.
+    #[must_use]
     pub fn get(&self) -> K::Output {
         let input = self.session.input.read();
         let bindings_cache = self.session.bindings_cache.read();
@@ -146,6 +188,7 @@ impl<K: ActionKind> Action<K> {
         K::reduce(&inputs)
     }
 
+    /// Returns the full name of the action, including the set it's part of.
     pub fn name(&self) -> &str {
         &self.full_name
     }
