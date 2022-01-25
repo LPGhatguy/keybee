@@ -1,6 +1,13 @@
 [package]
 name = "keybee"
+description = "Semantic input library for games"
 version = "0.0.0"
+authors = ["Lucien Greathouse <me@lpghatguy.com>"]
+readme = "README.md"
+homepage = "https://github.com/LPGhatguy/keybee"
+repository = "https://github.com/LPGhatguy/keybee"
+documentation = "https://docs.rs/keybee"
+license = "MIT OR Apache-2.0"
 edition = "2021"
 
 [dependencies]
