@@ -1,0 +1,22 @@
+game:
+  orient: ["mouse/xy", "gamepad/rightstick"]
+  thrust:
+    - x: ["keyboard/a", "keyboard/d"]
+      y: ["keyboard/c", "keyboard/space"]
+      z: ["keyboard/w", "keyboard/s"]
+    - x: "gamepad/leftstickx"
+      y: ["gamepad/lefttrigger", "gamepad/righttrigger"]
+      z:
+        axis: "gamepad/leftsticky"
+        sensitivity: -1.0
+  shoot: ["mouse/button1", "gamepad/a"]
+  roll: [["keyboard/q", "keyboard/e"], ["gamepad/leftshoulder", "gamepad/rightshoulder"]]
+  boost: ["keyboard/lshift", "gamepad/b"]
+  toggle_dampeners: ["keyboard/v", "gamepad/y"]
+  wormhole: ["keyboard/g", "gamepad/x"]
+meta:
+  pause: ["keyboard/escape", "gamepad/start"]
+  flycam:
+    - x: ["keyboard/a", "keyboard/d"]
+      y: ["keyboard/q", "keyboard/e"]
+      z: ["keyboard/w", "keyboard/s"]

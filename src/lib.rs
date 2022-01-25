@@ -1,6 +1,7 @@
 /*!
 Keybee is a semantic input binding library. **It's currently an early proof of
-concept that has been extracted from a larger game project.**
+concept that has been extracted from a larger game project, modified, and not
+well tested.**
 
 Keybee is built around straightforward core primitives:
 - `Session` holds all state for an application
