@@ -30,26 +30,12 @@ impl Clamp for f32 {
     }
 }
 
-impl Clamp for (f32, f32) {
+impl<const N: usize> Clamp for [f32; N] {
     fn clamp(self, max: f32) -> Self {
-        let (x, y) = self;
-        let len = (x.powi(2) + y.powi(2)).sqrt();
+        let len = self.map(|v| v.powi(2)).into_iter().sum::<f32>().sqrt();
 
         if len > max {
-            (max * x / len, max * y / len)
-        } else {
-            self
-        }
-    }
-}
-
-impl Clamp for (f32, f32, f32) {
-    fn clamp(self, max: f32) -> Self {
-        let (x, y, z) = self;
-        let len = (x.powi(2) + y.powi(2) + z.powi(2)).sqrt();
-
-        if len > max {
-            (max * x / len, max * y / len, max * z / len)
+            self.map(|v| v * max / len)
         } else {
             self
         }

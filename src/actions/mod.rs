@@ -86,7 +86,7 @@ impl ActionKind for Axis1dAction {
 pub struct Axis2dAction;
 
 impl ActionKind for Axis2dAction {
-    type Output = (f32, f32);
+    type Output = [f32; 2];
 
     fn get(state: &InputState, binding: &Binding) -> Option<Self::Output> {
         let binding = match binding {
@@ -99,12 +99,12 @@ impl ActionKind for Axis2dAction {
                 let x = Axis1dAction::get(state, &Binding::Axis1d(*x))?;
                 let y = Axis1dAction::get(state, &Binding::Axis1d(*y))?;
 
-                Some((x, y))
+                Some([x, y])
             }
             Axis2dBinding::Axis { axis, sensitivity } => {
                 let (x, y) = state.get_axis2d(*axis);
 
-                Some((x * sensitivity, y * sensitivity))
+                Some([x * sensitivity, y * sensitivity])
             }
         }
     }
@@ -112,14 +112,14 @@ impl ActionKind for Axis2dAction {
     fn reduce(inputs: &[Self::Output]) -> Self::Output {
         inputs
             .iter()
-            .fold((0.0, 0.0), |(ax, ay), (bx, by)| (ax + bx, ay + by))
+            .fold([0.0, 0.0], |[ax, ay], [bx, by]| [ax + bx, ay + by])
     }
 }
 
 pub struct Axis3dAction;
 
 impl ActionKind for Axis3dAction {
-    type Output = (f32, f32, f32);
+    type Output = [f32; 3];
 
     fn get(state: &InputState, binding: &Binding) -> Option<Self::Output> {
         let binding = match binding {
@@ -133,7 +133,7 @@ impl ActionKind for Axis3dAction {
                 let y = Axis1dAction::get(state, &Binding::Axis1d(*y))?;
                 let z = Axis1dAction::get(state, &Binding::Axis1d(*z))?;
 
-                Some((x, y, z))
+                Some([x, y, z])
             }
         }
     }
@@ -141,8 +141,8 @@ impl ActionKind for Axis3dAction {
     fn reduce(inputs: &[Self::Output]) -> Self::Output {
         inputs
             .iter()
-            .fold((0.0, 0.0, 0.0), |(ax, ay, az), (bx, by, bz)| {
-                (ax + bx, ay + by, az + bz)
+            .fold([0.0, 0.0, 0.0], |[ax, ay, az], [bx, by, bz]| {
+                [ax + bx, ay + by, az + bz]
             })
     }
 }
