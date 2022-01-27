@@ -15,12 +15,12 @@ Keybee is built around straightforward core primitives:
 
 ## Getting Started
 ```rust,no_run
-use keybee::{Session, ButtonAction, Clamped, Axis2dAction};
+use keybee::{Session, EventAction, Clamped, Axis2dAction};
 
 let session = keybee::Session::new();
 
 let gameplay = session.create_action_set("gameplay");
-let jump = gameplay.create_action::<ButtonAction>("jump");
+let jump = gameplay.create_action::<EventAction>("jump");
 let movement = gameplay.create_action::<Clamped<Axis2dAction>>("movement");
 
 // Keybee will have support for deserializing bindings from files, but for now,
@@ -39,7 +39,7 @@ loop {
     }
 
     let translate = movement.get();
-    if translate != (0.0, 0.0) {
+    if translate != [0.0, 0.0] {
         println!("Player movement vector: {:?}", translate);
     }
 
@@ -61,7 +61,7 @@ mod session;
 mod state;
 
 pub use crate::actions::{
-    ActionKind, Axis1dAction, Axis2dAction, Axis3dAction, ButtonAction, ButtonHeldAction, Clamped,
+    ActionKind, Axis1dAction, Axis2dAction, Axis3dAction, BoolAction, Clamped, EventAction,
 };
 pub use crate::buttons::*;
 pub use crate::session::{Action, ActionSet, Session};

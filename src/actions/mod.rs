@@ -12,9 +12,9 @@ pub trait ActionKind {
     fn reduce(inputs: &[Self::Output]) -> Self::Output;
 }
 
-pub struct ButtonAction;
+pub struct EventAction;
 
-impl ActionKind for ButtonAction {
+impl ActionKind for EventAction {
     type Output = bool;
 
     fn get(state: &InputState, binding: &Binding) -> Option<Self::Output> {
@@ -31,9 +31,9 @@ impl ActionKind for ButtonAction {
     }
 }
 
-pub struct ButtonHeldAction;
+pub struct BoolAction;
 
-impl ActionKind for ButtonHeldAction {
+impl ActionKind for BoolAction {
     type Output = bool;
 
     fn get(state: &InputState, binding: &Binding) -> Option<Self::Output> {
