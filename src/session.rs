@@ -8,6 +8,7 @@ use parking_lot::RwLock;
 use crate::actions::ActionKind;
 use crate::bindings::{Binding, Bindings};
 use crate::state::InputState;
+use crate::Event;
 
 pub struct Session {
     inner: Arc<SessionInner>,
@@ -79,18 +80,14 @@ impl Session {
         }
     }
 
-    /// Process an event from gilrs.
-    #[cfg(feature = "gilrs")]
-    pub fn handle_gilrs_event(&mut self, event: &gilrs::Event) {
-        let mut input = self.inner.input.write();
-        input.handle_gilrs_event(event);
-    }
-
-    /// Process an event from winit.
-    #[cfg(feature = "winit")]
-    pub fn handle_winit_event<T>(&mut self, event: &winit::event::Event<T>) {
-        let mut input = self.inner.input.write();
-        input.handle_winit_event(event);
+    pub fn handle_event<E>(&mut self, event: E)
+    where
+        E: TryInto<Event>,
+    {
+        if let Ok(event) = event.try_into() {
+            let mut input = self.inner.input.write();
+            input.handle_event(event);
+        }
     }
 
     /// Indicate to Keybee that a game update has just run. This resets any

@@ -28,11 +28,9 @@ let movement = gameplay.create_action::<Clamped<Axis2dAction>>("movement");
 session.use_bindings(todo!("load bindings from somewhere"));
 
 loop {
-    // With the `winit` feature enabled:
-    // session.handle_winit_event::<()>(todo!("pass winit events"));
-
-    // With the `gilrs` feature enabled:
-    // session.handle_gilrs_event(todo!("pass gil-rs events"));
+    // Enable the `winit` or `gilrs` features to pass their events like this:
+#   let some_event: keybee::Event = todo!("winit, gilrs or other events");
+    session.handle_event(some_event);
 
     if jump.get() {
         println!("Player jumped!");
@@ -57,6 +55,7 @@ loop {
 mod actions;
 mod bindings;
 mod buttons;
+mod event;
 mod session;
 mod state;
 
@@ -65,3 +64,4 @@ pub use crate::actions::{
 };
 pub use crate::buttons::*;
 pub use crate::session::{Action, ActionSet, Session};
+pub use event::Event;

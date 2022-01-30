@@ -1,6 +1,9 @@
 use std::collections::{HashMap, HashSet};
 
-use crate::buttons::{Axis1d, Axis2d, Button, MouseAxis1d};
+use crate::{
+    buttons::{Axis1d, Axis2d, Button, MouseAxis1d},
+    Event,
+};
 
 pub struct InputState {
     buttons: HashMap<Button, ButtonState>,
@@ -86,91 +89,20 @@ impl InputState {
         }
     }
 
-    #[cfg(feature = "gilrs")]
-    pub fn handle_gilrs_event(&mut self, event: &gilrs::Event) {
-        use crate::GamepadButton;
-        use gilrs::EventType;
-
-        match &event.event {
-            EventType::ButtonPressed(button, _) => {
-                if let Ok(button) = GamepadButton::try_from(*button) {
-                    self.buttons
-                        .insert(Button::Gamepad(button), ButtonState::JustPressed);
-                }
-            }
-
-            EventType::ButtonReleased(button, _) => {
-                if let Ok(button) = GamepadButton::try_from(*button) {
-                    self.buttons
-                        .insert(Button::Gamepad(button), ButtonState::JustReleased);
-                }
-            }
-
-            _ => {}
-        }
-    }
-
-    #[cfg(feature = "winit")]
-    pub fn handle_winit_event<T>(&mut self, event: &winit::event::Event<T>) {
-        use crate::{KeyboardKey, MouseButton};
-        use winit::event::{DeviceEvent, ElementState, Event, WindowEvent};
-
+    pub fn handle_event(&mut self, event: Event) {
         match event {
-            Event::WindowEvent {
-                event: WindowEvent::KeyboardInput { input, .. },
-                ..
-            } => match input.virtual_keycode {
-                Some(keycode) => {
-                    if let Ok(key) = KeyboardKey::try_from(keycode) {
-                        match input.state {
-                            ElementState::Pressed => {
-                                self.buttons
-                                    .insert(Button::Keyboard(key), ButtonState::JustPressed);
-                            }
-                            ElementState::Released => {
-                                self.buttons
-                                    .insert(Button::Keyboard(key), ButtonState::JustReleased);
-                            }
-                        }
-                    }
-                }
-                None => {}
-            },
-
-            Event::WindowEvent {
-                event: WindowEvent::MouseInput { state, button, .. },
-                ..
-            } => {
-                if let Ok(button) = MouseButton::try_from(*button) {
-                    match state {
-                        ElementState::Pressed => {
-                            self.buttons
-                                .insert(Button::Mouse(button), ButtonState::JustPressed);
-                        }
-                        ElementState::Released => {
-                            self.buttons
-                                .insert(Button::Mouse(button), ButtonState::JustReleased);
-                        }
-                    }
-                }
+            Event::ButtonPressed(button) => {
+                self.buttons.insert(button, ButtonState::JustPressed);
             }
-
-            Event::WindowEvent {
-                event: WindowEvent::CursorMoved { position, .. },
-                ..
-            } => {
-                self.cursor_position = (position.x as f32, position.y as f32);
+            Event::ButtonReleased(button) => {
+                self.buttons.insert(button, ButtonState::JustReleased);
             }
-
-            Event::DeviceEvent {
-                event: DeviceEvent::MouseMotion { delta },
-                ..
-            } => {
-                self.mouse_motion.0 += delta.0 as f32;
-                self.mouse_motion.1 += delta.1 as f32;
+            Event::CursorMoved(x, y) => {
+                self.cursor_position = (x, y);
             }
-
-            _ => {}
+            Event::MouseMotion(x, y) => {
+                self.mouse_motion = (self.mouse_motion.0 + x, self.mouse_motion.1 + y);
+            }
         }
     }
 }
