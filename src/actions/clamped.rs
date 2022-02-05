@@ -2,6 +2,7 @@ use crate::{bindings::Binding, state::InputState};
 
 use super::ActionKind;
 
+#[derive(Debug)]
 pub struct Clamped<T>(T);
 
 impl<T> ActionKind for Clamped<T>

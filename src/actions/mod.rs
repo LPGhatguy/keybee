@@ -12,6 +12,7 @@ pub trait ActionKind {
     fn reduce(inputs: &[Self::Output]) -> Self::Output;
 }
 
+#[derive(Debug)]
 pub struct EventAction;
 
 impl ActionKind for EventAction {
@@ -31,6 +32,7 @@ impl ActionKind for EventAction {
     }
 }
 
+#[derive(Debug)]
 pub struct BoolAction;
 
 impl ActionKind for BoolAction {
@@ -50,6 +52,7 @@ impl ActionKind for BoolAction {
     }
 }
 
+#[derive(Debug)]
 pub struct Axis1dAction;
 
 impl ActionKind for Axis1dAction {
@@ -83,6 +86,7 @@ impl ActionKind for Axis1dAction {
     }
 }
 
+#[derive(Debug)]
 pub struct Axis2dAction;
 
 impl ActionKind for Axis2dAction {
@@ -116,6 +120,7 @@ impl ActionKind for Axis2dAction {
     }
 }
 
+#[derive(Debug)]
 pub struct Axis3dAction;
 
 impl ActionKind for Axis3dAction {

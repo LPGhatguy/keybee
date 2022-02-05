@@ -1,4 +1,5 @@
 use std::collections::HashMap;
+use std::fmt::{self, Debug};
 use std::marker::PhantomData;
 use std::sync::atomic::{AtomicBool, AtomicUsize, Ordering};
 use std::sync::Arc;
@@ -188,5 +189,20 @@ impl<K: ActionKind> Action<K> {
     /// Returns the full name of the action, including the set it's part of.
     pub fn name(&self) -> &str {
         &self.full_name
+    }
+}
+
+impl<K> Debug for Action<K>
+where
+    K: ActionKind,
+    K::Output: Debug,
+{
+    fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
+        write!(
+            f,
+            "Action(name = {:?}, value = {:?}",
+            self.name(),
+            self.get()
+        )
     }
 }
