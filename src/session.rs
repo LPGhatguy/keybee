@@ -11,6 +11,8 @@ use crate::bindings::{Binding, Bindings};
 use crate::state::InputState;
 use crate::Event;
 
+/// The main entrypoint for using Keybee. [`ActionSet`]s are created from a
+/// `Session`, which can create [`Action`]s.
 pub struct Session {
     inner: Arc<SessionInner>,
 }
@@ -37,11 +39,11 @@ impl Session {
 
     /// Create a new action set with the given name.
     #[must_use]
-    pub fn create_action_set(&self, name: &'static str) -> ActionSet {
+    pub fn create_action_set(&self, name: &str) -> ActionSet {
         ActionSet {
             session: self.inner.clone(),
             enabled: Arc::new(AtomicBool::new(true)),
-            name,
+            name: name.to_owned(),
         }
     }
 
@@ -124,13 +126,13 @@ impl BindingsCache {
 pub struct ActionSet {
     session: Arc<SessionInner>,
     enabled: Arc<AtomicBool>,
-    name: &'static str,
+    name: String,
 }
 
 impl ActionSet {
     /// Create a new action that can be activated by the player.
     #[must_use]
-    pub fn create_action<K: ActionKind>(&self, name: &'static str) -> Action<K> {
+    pub fn create_action<K: ActionKind>(&self, name: &str) -> Action<K> {
         let id = self.session.next_action_id.fetch_add(1, Ordering::SeqCst);
         let full_name = format!("{}/{}", self.name, name);
 
@@ -146,6 +148,11 @@ impl ActionSet {
     /// Enable or disable all actions within this action set.
     pub fn set_enabled(&self, value: bool) {
         self.enabled.store(value, Ordering::SeqCst);
+    }
+
+    /// Returns the name of the action set given when it was created.
+    pub fn name(&self) -> &str {
+        &self.name
     }
 }
 
@@ -186,7 +193,12 @@ impl<K: ActionKind> Action<K> {
         K::reduce(&inputs)
     }
 
-    /// Returns the full name of the action, including the set it's part of.
+    /// Returns the full name of the action, including the action set it's part
+    /// of.
+    ///
+    /// Action names are of the form `{set}/{action}`. An `Action` named "jump"
+    /// created in an [`ActionSet`] named "gameplay" will have the name
+    /// `gameplay/jump`.
     pub fn name(&self) -> &str {
         &self.full_name
     }
