@@ -1,8 +1,13 @@
+mod binding;
+
 use std::collections::HashMap;
 
-use crate::buttons::{Axis1d, Axis2d, Button};
+use serde::{Deserialize, Serialize};
 
-#[derive(Debug)]
+pub use binding::*;
+
+#[derive(Debug, Serialize, Deserialize)]
+#[serde(transparent)]
 pub struct Bindings {
     pub action_sets: HashMap<String, ActionSetBindings>,
 }
@@ -42,7 +47,8 @@ impl Bindings {
     }
 }
 
-#[derive(Debug)]
+#[derive(Debug, Serialize, Deserialize)]
+#[serde(transparent)]
 pub struct ActionSetBindings {
     pub actions: HashMap<String, Vec<Binding>>,
 }
@@ -74,40 +80,4 @@ impl ActionSetBindings {
             self.actions.insert(name, action);
         }
     }
-}
-
-#[derive(Debug, Clone, Copy)]
-pub enum Binding {
-    Button(Button),
-    Axis1d(Axis1dBinding),
-    Axis2d(Axis2dBinding),
-    Axis3d(Axis3dBinding),
-}
-
-#[derive(Debug, Clone, Copy)]
-pub enum Axis1dBinding {
-    Buttons {
-        neg: Button,
-        pos: Button,
-        sensitivity: f32,
-    },
-    Axis {
-        axis: Axis1d,
-        sensitivity: f32,
-    },
-}
-
-#[derive(Debug, Clone, Copy)]
-pub enum Axis2dBinding {
-    Individual { x: Axis1dBinding, y: Axis1dBinding },
-    Axis { axis: Axis2d, sensitivity: f32 },
-}
-
-#[derive(Debug, Clone, Copy)]
-pub enum Axis3dBinding {
-    Individual {
-        x: Axis1dBinding,
-        y: Axis1dBinding,
-        z: Axis1dBinding,
-    },
 }
