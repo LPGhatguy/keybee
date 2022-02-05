@@ -1,4 +1,3 @@
-#[macro_export]
 macro_rules! wrapper_enum {
     ( $enum_name:ident {
         $( $variant:ident($inner:ident, $inner_name:ident), )*
@@ -51,7 +50,6 @@ macro_rules! wrapper_enum {
     };
 }
 
-#[macro_export]
 macro_rules! keyboard {
     ( $( $variant:ident($name:ident), )* ) => {
         #[derive(Debug, Clone, Copy, PartialEq, Eq, PartialOrd, Ord, Hash)]
@@ -80,7 +78,6 @@ macro_rules! keyboard {
     };
 }
 
-#[macro_export]
 macro_rules! keyboard_winit {
     ( $($key:ident => $winit:ident,)* ) => {
         #[cfg(feature = "winit")]
@@ -106,7 +103,6 @@ macro_rules! keyboard_winit {
     }
 }
 
-#[macro_export]
 macro_rules! define_device {
     (
         $input:ident($input_name:ident)
