@@ -27,7 +27,7 @@ wrapper_enum! {
 }
 
 wrapper_enum! {
-    Binding {
+    Input {
         Keyboard(KeyboardKey, keyboard),
         Mouse(Mouse, mouse),
         Gamepad(Gamepad, gamepad),

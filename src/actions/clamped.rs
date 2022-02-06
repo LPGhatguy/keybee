@@ -1,4 +1,5 @@
-use crate::{bindings::Binding, state::InputState};
+use crate::bindings::Binding;
+use crate::state::InputState;
 
 use super::ActionKind;
 

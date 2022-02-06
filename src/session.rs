@@ -29,7 +29,7 @@ impl Session {
     pub fn new() -> Self {
         let inner = Arc::new(SessionInner {
             input: RwLock::new(InputState::new()),
-            bindings: RwLock::new(Bindings::empty()),
+            bindings: RwLock::new(Bindings::new()),
             bindings_cache: RwLock::new(BindingsCache::new()),
             next_action_id: AtomicUsize::new(0),
         });
@@ -83,6 +83,10 @@ impl Session {
         }
     }
 
+    /// Process an event and update the session's state.
+    ///
+    /// Enable the `winit` or `gilrs` features to let this method handle events
+    /// from those crates.
     pub fn handle_event<E>(&mut self, event: E)
     where
         E: TryInto<Event>,

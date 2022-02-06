@@ -59,10 +59,9 @@ mod event;
 mod session;
 mod state;
 
-pub use crate::actions::{
-    ActionKind, Axis1dAction, Axis2dAction, Axis3dAction, BoolAction, Clamped, EventAction,
-};
+pub use crate::actions::*;
 pub use crate::bindings::*;
 pub use crate::buttons::*;
-pub use crate::session::{Action, ActionSet, Session};
-pub use event::Event;
+pub use crate::event::*;
+pub use crate::session::*;
+pub use crate::state::*;

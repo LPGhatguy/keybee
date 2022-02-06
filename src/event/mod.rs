@@ -7,6 +7,10 @@ mod gilrs;
 mod winit;
 
 /// Represents an input event that can be processed by the library.
+///
+/// By enabling the `winit` or `gilrs` features, keybee supports converting
+/// events from those libraries to this event type through the [`TryFrom`] and
+/// [`TryInto`] traits.
 #[derive(Debug)]
 #[non_exhaustive]
 pub enum Event {

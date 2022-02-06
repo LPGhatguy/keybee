@@ -6,6 +6,7 @@ use serde::{Deserialize, Serialize};
 
 pub use binding::*;
 
+/// Defines how inputs should be mapped to actions.
 #[derive(Debug, Serialize, Deserialize)]
 #[serde(transparent)]
 pub struct Bindings {
@@ -13,13 +14,13 @@ pub struct Bindings {
 }
 
 impl Bindings {
-    pub fn empty() -> Self {
+    pub fn new() -> Self {
         Self {
             action_sets: HashMap::new(),
         }
     }
 
-    pub fn new<A, Name>(action_sets: A) -> Self
+    pub fn from_action_sets<A, Name>(action_sets: A) -> Self
     where
         A: IntoIterator<Item = (Name, ActionSetBindings)>,
         Name: Into<String>,
@@ -32,12 +33,17 @@ impl Bindings {
         Self { action_sets }
     }
 
+    /// Merge another set of bindings into this one, overwriting any actions
+    /// defined in `other`.
+    ///
+    /// This method is useful for applying user-specified bindings over the top
+    /// of default bindings.
     pub fn merge(&mut self, other: Bindings) {
         for (name, action_set) in other.action_sets {
             let bindings = self
                 .action_sets
                 .entry(name)
-                .or_insert_with(ActionSetBindings::empty);
+                .or_insert_with(ActionSetBindings::new);
             bindings.merge(action_set);
         }
     }
@@ -54,13 +60,13 @@ pub struct ActionSetBindings {
 }
 
 impl ActionSetBindings {
-    pub fn empty() -> Self {
+    pub fn new() -> Self {
         Self {
             actions: HashMap::new(),
         }
     }
 
-    pub fn new<A, N, Bs, B>(actions: A) -> Self
+    pub fn from_actions<A, N, Bs, B>(actions: A) -> Self
     where
         A: IntoIterator<Item = (N, Bs)>,
         N: Into<String>,
