@@ -12,6 +12,8 @@ pub trait ActionKind {
     fn reduce(inputs: &[Self::Output]) -> Self::Output;
 }
 
+/// Describes an action that happens as an instantaneous event, like a character
+/// jumping, selecting a menu item, or toggling an ability.
 #[derive(Debug)]
 pub struct EventAction;
 
@@ -32,6 +34,8 @@ impl ActionKind for EventAction {
     }
 }
 
+/// Describes an action that happens continously, like shooting a rapid fire gun
+/// or hold-to-sprint.
 #[derive(Debug)]
 pub struct BoolAction;
 
@@ -52,6 +56,8 @@ impl ActionKind for BoolAction {
     }
 }
 
+/// Describes a one dimensional axis action, like zooming a camera or an
+/// airplane's throttle.
 #[derive(Debug)]
 pub struct Axis1dAction;
 
@@ -86,6 +92,8 @@ impl ActionKind for Axis1dAction {
     }
 }
 
+/// Describes a two dimensional axis action, like character movement or
+/// controlling a first person camera.
 #[derive(Debug)]
 pub struct Axis2dAction;
 
@@ -120,6 +128,8 @@ impl ActionKind for Axis2dAction {
     }
 }
 
+/// Describes a three dimensional axis action, like an editor flycam or
+/// spaceship controls.
 #[derive(Debug)]
 pub struct Axis3dAction;
 

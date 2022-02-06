@@ -1,6 +1,7 @@
 use std::collections::HashMap;
 use std::fmt::{self, Debug};
 use std::marker::PhantomData;
+use std::ops::Deref;
 use std::sync::atomic::{AtomicBool, AtomicUsize, Ordering};
 use std::sync::Arc;
 
@@ -102,6 +103,10 @@ impl Session {
     pub fn end_update(&mut self) {
         let mut input = self.inner.input.write();
         input.end_update();
+    }
+
+    pub fn state(&mut self) -> impl Deref<Target = InputState> + '_ {
+        self.inner.input.read()
     }
 }
 

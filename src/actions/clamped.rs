@@ -3,6 +3,8 @@ use crate::state::InputState;
 
 use super::ActionKind;
 
+/// Clamps an axis action, clamping the length of its values to a maximum of
+/// 1.0.
 #[derive(Debug)]
 pub struct Clamped<T>(T);
 
