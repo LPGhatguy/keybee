@@ -114,7 +114,7 @@ impl ActionKind for Axis2dAction {
                 Some([x, y])
             }
             Axis2dBinding::Axis { axis, sensitivity } => {
-                let (x, y) = state.get_axis2d(*axis);
+                let [x, y] = state.get_axis2d(*axis);
 
                 Some([x * sensitivity, y * sensitivity])
             }

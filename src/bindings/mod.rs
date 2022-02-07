@@ -20,17 +20,16 @@ impl Bindings {
         }
     }
 
-    pub fn from_action_sets<A, Name>(action_sets: A) -> Self
-    where
-        A: IntoIterator<Item = (Name, ActionSetBindings)>,
-        Name: Into<String>,
-    {
-        let action_sets = action_sets
-            .into_iter()
-            .map(|(key, value)| (key.into(), value))
-            .collect();
+    pub fn get(&self, name: &str) -> Option<&ActionSetBindings> {
+        self.action_sets.get(name)
+    }
 
-        Self { action_sets }
+    pub fn get_mut(&mut self, name: &str) -> Option<&mut ActionSetBindings> {
+        self.action_sets.get_mut(name)
+    }
+
+    pub fn insert<S: Into<String>>(&mut self, name: S, value: ActionSetBindings) {
+        self.action_sets.insert(name.into(), value);
     }
 
     /// Merge another set of bindings into this one, overwriting any actions
@@ -66,19 +65,16 @@ impl ActionSetBindings {
         }
     }
 
-    pub fn from_actions<A, N, Bs, B>(actions: A) -> Self
-    where
-        A: IntoIterator<Item = (N, Bs)>,
-        N: Into<String>,
-        Bs: IntoIterator<Item = B>,
-        B: Into<Binding>,
-    {
-        let actions = actions
-            .into_iter()
-            .map(|(key, value)| (key.into(), value.into_iter().map(Into::into).collect()))
-            .collect();
+    pub fn get(&self, name: &str) -> Option<&Vec<Binding>> {
+        self.actions.get(name)
+    }
 
-        Self { actions }
+    pub fn get_mut(&mut self, name: &str) -> Option<&mut Vec<Binding>> {
+        self.actions.get_mut(name)
+    }
+
+    pub fn insert<S: Into<String>>(&mut self, name: S, value: Vec<Binding>) {
+        self.actions.insert(name.into(), value);
     }
 
     pub fn merge(&mut self, other: ActionSetBindings) {

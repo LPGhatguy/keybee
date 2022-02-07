@@ -1,16 +1,19 @@
-use std::collections::HashMap;
+mod bindings_cache;
+
 use std::fmt::{self, Debug};
 use std::marker::PhantomData;
 use std::ops::Deref;
-use std::sync::atomic::{AtomicBool, AtomicUsize, Ordering};
+use std::sync::atomic::{AtomicBool, Ordering};
 use std::sync::Arc;
 
 use parking_lot::RwLock;
 
 use crate::actions::ActionKind;
-use crate::bindings::{Binding, Bindings};
+use crate::bindings::Bindings;
 use crate::state::InputState;
 use crate::Event;
+
+use self::bindings_cache::BindingsCache;
 
 /// The main entrypoint for using Keybee. [`ActionSet`]s are created from a
 /// `Session`, which can create [`Action`]s.
@@ -22,7 +25,6 @@ struct SessionInner {
     input: RwLock<InputState>,
     bindings: RwLock<Bindings>,
     bindings_cache: RwLock<BindingsCache>,
-    next_action_id: AtomicUsize,
 }
 
 impl Session {
@@ -32,7 +34,6 @@ impl Session {
             input: RwLock::new(InputState::new()),
             bindings: RwLock::new(Bindings::new()),
             bindings_cache: RwLock::new(BindingsCache::new()),
-            next_action_id: AtomicUsize::new(0),
         });
 
         Self { inner }
@@ -64,22 +65,12 @@ impl Session {
         let mut bindings_cache = self.inner.bindings_cache.write();
 
         bindings.merge(new);
+        bindings_cache.clear();
 
         for (set_name, action_set) in &bindings.action_sets {
-            for (action_name, action) in &action_set.actions {
+            for (action_name, action_bindings) in &action_set.actions {
                 let full_name = format!("{}/{}", set_name, action_name);
-
-                if let Some(&index) = bindings_cache.action_name_to_index.get(&full_name) {
-                    let add_cap = (index + 1).checked_sub(bindings_cache.bindings.len());
-
-                    if let Some(add) = add_cap {
-                        for _ in 0..add {
-                            bindings_cache.bindings.push(Vec::new());
-                        }
-                    }
-
-                    bindings_cache.bindings[index] = action.clone();
-                }
+                bindings_cache.insert(full_name, action_bindings.clone());
             }
         }
     }
@@ -110,25 +101,6 @@ impl Session {
     }
 }
 
-struct BindingsCache {
-    action_name_to_index: HashMap<String, usize>,
-    bindings: Vec<Vec<Binding>>,
-}
-
-impl BindingsCache {
-    fn new() -> Self {
-        Self {
-            action_name_to_index: HashMap::new(),
-            bindings: Vec::new(),
-        }
-    }
-
-    fn clear(&mut self) {
-        self.action_name_to_index.clear();
-        self.bindings.clear();
-    }
-}
-
 /// Defines a group of actions that a player can perform.
 ///
 /// Created with [`Session::create_action_set`].
@@ -142,13 +114,11 @@ impl ActionSet {
     /// Create a new action that can be activated by the player.
     #[must_use]
     pub fn create_action<K: ActionKind>(&self, name: &str) -> Action<K> {
-        let id = self.session.next_action_id.fetch_add(1, Ordering::SeqCst);
         let full_name = format!("{}/{}", self.name, name);
 
         Action {
             session: self.session.clone(),
             set_enabled: Arc::clone(&self.enabled),
-            id,
             full_name,
             _phantom: PhantomData,
         }
@@ -171,7 +141,6 @@ impl ActionSet {
 pub struct Action<K> {
     session: Arc<SessionInner>,
     set_enabled: Arc<AtomicBool>,
-    id: usize,
     full_name: String,
     _phantom: PhantomData<*const K>,
 }
@@ -185,11 +154,7 @@ impl<K: ActionKind> Action<K> {
         let enabled = self.set_enabled.load(Ordering::SeqCst);
 
         let bindings = if enabled {
-            bindings_cache
-                .bindings
-                .get(self.id)
-                .map(Vec::as_slice)
-                .unwrap_or(&[])
+            bindings_cache.get(&self.full_name).unwrap_or(&[])
         } else {
             &[]
         };
@@ -225,5 +190,37 @@ where
             self.name(),
             self.get()
         )
+    }
+}
+
+#[cfg(test)]
+mod test {
+    use crate::{ActionSetBindings, Button, EventAction, KeyboardKey};
+
+    use super::*;
+
+    #[test]
+    fn event_action() {
+        let mut session = Session::new();
+        let set = session.create_action_set("gameplay");
+        let jump = set.create_action::<EventAction>("jump");
+
+        let mut bindings = Bindings::new();
+        let mut gameplay = ActionSetBindings::new();
+        gameplay.insert("jump", vec![Button::Keyboard(KeyboardKey::Space).into()]);
+        bindings.insert("gameplay", gameplay);
+
+        session.use_bindings(bindings);
+
+        assert_eq!(jump.get(), false);
+
+        session.handle_event(Event::ButtonPressed(KeyboardKey::Space.into()));
+        assert_eq!(jump.get(), true);
+
+        session.end_update();
+        assert_eq!(jump.get(), false);
+
+        session.handle_event(Event::ButtonPressed(KeyboardKey::Space.into()));
+        assert_eq!(jump.get(), true);
     }
 }

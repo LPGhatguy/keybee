@@ -7,6 +7,14 @@ macro_rules! wrapper_enum {
             $( $variant($inner), )*
         }
 
+        $(
+            impl From<$inner> for $enum_name {
+                fn from(value: $inner) -> Self {
+                    Self::$variant(value)
+                }
+            }
+        )*
+
         impl std::fmt::Display for $enum_name {
             fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
                 match self {

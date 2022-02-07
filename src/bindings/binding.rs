@@ -10,6 +10,30 @@ pub enum Binding {
     Axis3d(Axis3dBinding),
 }
 
+impl From<Button> for Binding {
+    fn from(value: Button) -> Self {
+        Self::Button(value)
+    }
+}
+
+impl From<Axis1dBinding> for Binding {
+    fn from(value: Axis1dBinding) -> Self {
+        Self::Axis1d(value)
+    }
+}
+
+impl From<Axis2dBinding> for Binding {
+    fn from(value: Axis2dBinding) -> Self {
+        Self::Axis2d(value)
+    }
+}
+
+impl From<Axis3dBinding> for Binding {
+    fn from(value: Axis3dBinding) -> Self {
+        Self::Axis3d(value)
+    }
+}
+
 impl Serialize for Binding {
     fn serialize<S>(&self, _serializer: S) -> Result<S::Ok, S::Error>
     where
