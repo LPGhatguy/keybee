@@ -16,12 +16,12 @@ Keybee is built around straightforward core primitives:
 
 ### Getting Started
 ```rust
-use keybee::{Session, ButtonAction, Clamped, Axis2dAction};
+use keybee::{Session, EventAction, Clamped, Axis2dAction};
 
 let session = keybee::Session::new();
 
 let gameplay = session.create_action_set("gameplay");
-let jump = gameplay.create_action::<ButtonAction>("jump");
+let jump = gameplay.create_action::<EventAction>("jump");
 let movement = gameplay.create_action::<Clamped<Axis2dAction>>("movement");
 
 // Keybee will have support for deserializing bindings from files, but for now,
@@ -29,18 +29,15 @@ let movement = gameplay.create_action::<Clamped<Axis2dAction>>("movement");
 session.use_bindings(todo!("load bindings from somewhere"));
 
 loop {
-    // With the `winit` feature enabled:
-    // session.handle_winit_event::<()>(todo!("pass winit events"));
-
-    // With the `gilrs` feature enabled:
-    // session.handle_gilrs_event(todo!("pass gil-rs events"));
+    // Enable the `winit` or `gilrs` features to pass their events like this:
+    session.handle_event(some_event);
 
     if jump.get() {
         println!("Player jumped!");
     }
 
     let translate = movement.get();
-    if translate != (0.0, 0.0) {
+    if translate != [0.0, 0.0] {
         println!("Player movement vector: {:?}", translate);
     }
 
