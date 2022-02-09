@@ -1,4 +1,4 @@
-use crate::Button;
+use crate::{Axis1d, Axis2d, Button};
 
 #[cfg(feature = "gilrs")]
 mod gilrs;
@@ -16,6 +16,8 @@ mod winit;
 pub enum Event {
     ButtonPressed(Button),
     ButtonReleased(Button),
+    Axis1dChanged(Axis1d, f32),
+    Axis2dChanged(Axis2d, [f32; 2]),
     CursorMoved(f32, f32),
     MouseMotion(f32, f32),
 }

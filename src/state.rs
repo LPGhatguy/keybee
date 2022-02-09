@@ -119,6 +119,8 @@ impl InputState {
             Event::ButtonReleased(button) => {
                 self.buttons.insert(button, ButtonState::JustReleased);
             }
+            Event::Axis1dChanged(_axis, _value) => todo!(),
+            Event::Axis2dChanged(_axis, _value) => todo!(),
             Event::CursorMoved(x, y) => {
                 self.cursor_position = [x, y];
             }

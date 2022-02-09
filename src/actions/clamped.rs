@@ -45,3 +45,45 @@ impl<const N: usize> Clamp for [f32; N] {
         }
     }
 }
+
+#[cfg(test)]
+mod test {
+    use crate::{Axis1d, Axis1dAction, Axis1dBinding, Event, GamepadAxis1d};
+
+    use super::*;
+
+    // This will be used for 2D axis tests!
+    #[allow(unused)]
+    fn len2(a: f32, b: f32) -> f32 {
+        (a.powi(2) + b.powi(2)).sqrt()
+    }
+
+    #[test]
+    #[ignore = "axis events are currentl unimplemented"]
+    fn clamp_f32() {
+        let mut state = InputState::new();
+        let axis = Axis1d::Gamepad(GamepadAxis1d::LeftStickX);
+        let binding = Binding::Axis1d(Axis1dBinding::Axis {
+            axis,
+            sensitivity: 1.0,
+        });
+        type Action = Clamped<Axis1dAction>;
+
+        assert_eq!(Action::get(&state, &binding), Some(0.0));
+
+        state.handle_event(Event::Axis1dChanged(axis, 1.0));
+        assert_eq!(Action::get(&state, &binding), Some(1.0));
+
+        state.handle_event(Event::Axis1dChanged(axis, -1.0));
+        assert_eq!(Action::get(&state, &binding), Some(-1.0));
+
+        state.handle_event(Event::Axis1dChanged(axis, 0.5));
+        assert_eq!(Action::get(&state, &binding), Some(0.5));
+
+        state.handle_event(Event::Axis1dChanged(axis, 2.0));
+        assert_eq!(Action::get(&state, &binding), Some(1.0));
+
+        state.handle_event(Event::Axis1dChanged(axis, -3.5));
+        assert_eq!(Action::get(&state, &binding), Some(-1.0));
+    }
+}
