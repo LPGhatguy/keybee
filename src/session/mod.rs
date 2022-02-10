@@ -113,12 +113,13 @@ pub struct ActionSet {
 impl ActionSet {
     /// Create a new action that can be activated by the player.
     #[must_use]
-    pub fn create_action<K: ActionKind>(&self, name: &str) -> Action<K> {
+    pub fn create_action<K: ActionKind>(&self, name: &str, action: K) -> Action<K> {
         let full_name = format!("{}/{}", self.name, name);
 
         Action {
             session: self.session.clone(),
             set_enabled: Arc::clone(&self.enabled),
+            storage: RwLock::new(action),
             full_name,
             _phantom: PhantomData,
         }
@@ -141,6 +142,7 @@ impl ActionSet {
 pub struct Action<K> {
     session: Arc<SessionInner>,
     set_enabled: Arc<AtomicBool>,
+    storage: RwLock<K>,
     full_name: String,
     _phantom: PhantomData<*const K>,
 }
@@ -159,12 +161,14 @@ impl<K: ActionKind> Action<K> {
             &[]
         };
 
+        let mut storage = self.storage.write();
+
         let inputs: Vec<_> = bindings
             .iter()
-            .filter_map(|binding| K::get(&input, binding))
+            .filter_map(|binding| storage.get(&input, binding))
             .collect();
 
-        K::reduce(&inputs)
+        storage.reduce(&inputs)
     }
 
     /// Returns the full name of the action, including the action set it's part
@@ -186,7 +190,7 @@ where
     fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
         write!(
             f,
-            "Action(name = {:?}, value = {:?}",
+            "Action(name = {:?}, value = {:?})",
             self.name(),
             self.get()
         )
@@ -203,7 +207,7 @@ mod test {
     fn event_action() {
         let mut session = Session::new();
         let set = session.create_action_set("gameplay");
-        let jump = set.create_action::<EventAction>("jump");
+        let jump = set.create_action("jump", EventAction);
 
         let mut bindings = Bindings::new();
         let mut gameplay = ActionSetBindings::new();

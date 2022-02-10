@@ -20,8 +20,8 @@ use keybee::{Session, EventAction, Clamped, Axis2dAction};
 let session = keybee::Session::new();
 
 let gameplay = session.create_action_set("gameplay");
-let jump = gameplay.create_action::<EventAction>("jump");
-let movement = gameplay.create_action::<Clamped<Axis2dAction>>("movement");
+let jump = gameplay.create_action("jump", EventAction);
+let movement = gameplay.create_action("movement", Clamped(Axis2dAction));
 
 // Keybee will have support for deserializing bindings from files, but for now,
 // this isn't quite done.

@@ -6,7 +6,7 @@ use super::ActionKind;
 /// Clamps an axis action, clamping the length of its values to a maximum of
 /// 1.0.
 #[derive(Debug)]
-pub struct Clamped<T>(T);
+pub struct Clamped<T>(pub T);
 
 impl<T> ActionKind for Clamped<T>
 where
@@ -15,12 +15,12 @@ where
 {
     type Output = T::Output;
 
-    fn get(state: &InputState, binding: &Binding) -> Option<Self::Output> {
-        T::get(state, binding).map(|v| v.clamp(1.0))
+    fn get(&mut self, state: &InputState, binding: &Binding) -> Option<Self::Output> {
+        self.0.get(state, binding).map(|v| v.clamp(1.0))
     }
 
-    fn reduce(inputs: &[Self::Output]) -> Self::Output {
-        T::reduce(inputs).clamp(1.0)
+    fn reduce(&mut self, inputs: &[Self::Output]) -> Self::Output {
+        self.0.reduce(inputs).clamp(1.0)
     }
 }
 
@@ -67,23 +67,23 @@ mod test {
             axis,
             sensitivity: 1.0,
         });
-        type Action = Clamped<Axis1dAction>;
+        let mut action = Clamped(Axis1dAction);
 
-        assert_eq!(Action::get(&state, &binding), Some(0.0));
+        assert_eq!(action.get(&state, &binding), Some(0.0));
 
         state.handle_event(Event::Axis1dChanged(axis, 1.0));
-        assert_eq!(Action::get(&state, &binding), Some(1.0));
+        assert_eq!(action.get(&state, &binding), Some(1.0));
 
         state.handle_event(Event::Axis1dChanged(axis, -1.0));
-        assert_eq!(Action::get(&state, &binding), Some(-1.0));
+        assert_eq!(action.get(&state, &binding), Some(-1.0));
 
         state.handle_event(Event::Axis1dChanged(axis, 0.5));
-        assert_eq!(Action::get(&state, &binding), Some(0.5));
+        assert_eq!(action.get(&state, &binding), Some(0.5));
 
         state.handle_event(Event::Axis1dChanged(axis, 2.0));
-        assert_eq!(Action::get(&state, &binding), Some(1.0));
+        assert_eq!(action.get(&state, &binding), Some(1.0));
 
         state.handle_event(Event::Axis1dChanged(axis, -3.5));
-        assert_eq!(Action::get(&state, &binding), Some(-1.0));
+        assert_eq!(action.get(&state, &binding), Some(-1.0));
     }
 }
