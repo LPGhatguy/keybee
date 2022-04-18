@@ -273,6 +273,27 @@ impl TryFrom<gilrs::Button> for GamepadButton {
     }
 }
 
+#[cfg(feature = "gilrs")]
+impl TryFrom<gilrs::Axis> for GamepadAxis1d {
+    type Error = anyhow::Error;
+
+    fn try_from(value: gilrs::Axis) -> Result<Self, Self::Error> {
+        use gilrs::Axis::*;
+
+        match value {
+            LeftStickX => Ok(Self::LeftStickX),
+            LeftStickY => Ok(Self::LeftStickY),
+            LeftZ => Ok(Self::LeftTrigger),
+            RightStickX => Ok(Self::RightStickX),
+            RightStickY => Ok(Self::RightStickY),
+            RightZ => Ok(Self::RightTrigger),
+            DPadX => Ok(Self::DpadX),
+            DPadY => Ok(Self::DpadY),
+            _ => anyhow::bail!("gilrs axis {:?} is not supported", value),
+        }
+    }
+}
+
 define_device! {
     Mouse(mouse)
 

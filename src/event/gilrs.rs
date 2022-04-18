@@ -18,6 +18,10 @@ impl TryFrom<&gilrs::Event> for Event {
                 Ok(Event::ButtonReleased(Button::Gamepad(button)))
             }
 
+            EventType::AxisChanged(axis, value, code) => {
+                bail!("Cannot convert AxisChanged: {axis:?} {value:?} {code:?}");
+            }
+
             _ => bail!("cannot convert event"),
         }
     }
