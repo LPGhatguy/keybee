@@ -1,6 +1,6 @@
 use serde::{Deserialize, Deserializer, Serialize, Serializer};
 
-use crate::{Axis1d, Axis2d, Button};
+use crate::{Axis1d, Axis2d, Button, GamepadButton, KeyboardKey, MouseButton};
 
 #[derive(Debug, Clone, Copy)]
 pub enum Binding {
@@ -13,6 +13,24 @@ pub enum Binding {
 impl From<Button> for Binding {
     fn from(value: Button) -> Self {
         Self::Button(value)
+    }
+}
+
+impl From<KeyboardKey> for Binding {
+    fn from(value: KeyboardKey) -> Self {
+        Self::Button(Button::Keyboard(value))
+    }
+}
+
+impl From<MouseButton> for Binding {
+    fn from(value: MouseButton) -> Self {
+        Self::Button(Button::Mouse(value))
+    }
+}
+
+impl From<GamepadButton> for Binding {
+    fn from(value: GamepadButton) -> Self {
+        Self::Button(Button::Gamepad(value))
     }
 }
 
