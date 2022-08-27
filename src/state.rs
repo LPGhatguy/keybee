@@ -10,6 +10,7 @@ pub struct InputState {
     buttons: HashMap<Button, ButtonState>,
     mouse_motion: [f32; 2],
     cursor_position: [f32; 2],
+    viewport_position: [f32; 2],
 }
 
 /// The current state of a button.
@@ -36,7 +37,14 @@ impl InputState {
 
             mouse_motion: [0.0, 0.0],
             cursor_position: [0.0, 0.0],
+            viewport_position: [0.0, 0.0],
         }
+    }
+
+    /// Sets the offset of the game viewport, used for reporting the cursor's
+    /// position.
+    pub fn set_viewport_position<P: Into<[f32; 2]>>(&mut self, pos: P) {
+        self.viewport_position = pos.into();
     }
 
     /// Returns the current state for the given button.
@@ -89,7 +97,9 @@ impl InputState {
 
     /// Tells the current position of the cursor.
     pub fn cursor_position(&self) -> [f32; 2] {
-        self.cursor_position
+        let [x, y] = self.cursor_position;
+        let [vx, vy] = self.viewport_position;
+        [x - vx, y - vy]
     }
 
     /// Marks the end of an update, resetting accumulated mouse motion and

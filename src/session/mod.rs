@@ -75,6 +75,16 @@ impl Session {
         }
     }
 
+    /// Sets the offset of the game viewport, used for reporting the cursor's
+    /// position.
+    pub fn set_viewport_position<P>(&mut self, position: P)
+    where
+        P: Into<[f32; 2]>,
+    {
+        let mut input = self.inner.input.write();
+        input.set_viewport_position(position);
+    }
+
     /// Process an event and update the session's state.
     ///
     /// Enable the `winit` or `gilrs` features to let this method handle events
