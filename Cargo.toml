@@ -15,5 +15,5 @@ anyhow = "1.0.52"
 serde = { version = "1.0.136", features = ["derive"] }
 parking_lot = "0.11.2"
 
-winit = { version = "0.26.1", optional = true }
+winit = { version = "0.27.3", optional = true }
 gilrs = { version = "0.8.1", optional = true }
