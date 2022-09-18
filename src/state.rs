@@ -79,6 +79,16 @@ impl InputState {
         )
     }
 
+    /// Tells whether the given button is currently released.
+    pub fn is_button_up<B: Into<Button>>(&self, button: B) -> bool {
+        let button = button.into();
+
+        matches!(
+            self.buttons.get(&button),
+            None | Some(ButtonState::Released | ButtonState::JustReleased)
+        )
+    }
+
     /// Tells the state of the given axis.
     pub fn get_axis1d(&self, axis: Axis1d) -> f32 {
         match axis {

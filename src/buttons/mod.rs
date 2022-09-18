@@ -115,6 +115,7 @@ keyboard! {
     LAlt(leftalt),
     RAlt(rightalt),
     Escape(escape),
+    Delete(delete),
 }
 
 keyboard_winit! {
@@ -196,6 +197,7 @@ keyboard_winit! {
     LAlt => LAlt,
     RAlt => RAlt,
     Escape => Escape,
+    Delete => Delete,
 }
 
 define_device! {
