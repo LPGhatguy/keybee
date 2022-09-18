@@ -62,6 +62,13 @@ impl InputState {
         matches!(self.buttons.get(&button), Some(ButtonState::JustPressed))
     }
 
+    /// Tells whether the given button was released this update.
+    pub fn is_button_just_up<B: Into<Button>>(&self, button: B) -> bool {
+        let button = button.into();
+
+        matches!(self.buttons.get(&button), Some(ButtonState::JustReleased))
+    }
+
     /// Tells whether the given button is currently pressed.
     pub fn is_button_down<B: Into<Button>>(&self, button: B) -> bool {
         let button = button.into();
