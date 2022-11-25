@@ -226,15 +226,16 @@ mod test {
 
         session.use_bindings(bindings);
 
-        assert_eq!(jump.get(), false);
+        assert!(!jump.get());
 
         session.handle_event(Event::ButtonPressed(KeyboardKey::Space.into()));
-        assert_eq!(jump.get(), true);
+        assert!(jump.get());
 
         session.end_update();
-        assert_eq!(jump.get(), false);
+        assert!(!jump.get());
 
+        session.handle_event(Event::ButtonReleased(KeyboardKey::Space.into()));
         session.handle_event(Event::ButtonPressed(KeyboardKey::Space.into()));
-        assert_eq!(jump.get(), true);
+        assert!(jump.get());
     }
 }

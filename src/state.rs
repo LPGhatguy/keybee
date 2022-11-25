@@ -144,12 +144,18 @@ impl InputState {
     /// Handle the given event and update input state accordingly.
     pub fn handle_event(&mut self, event: Event) {
         match event {
-            Event::ButtonPressed(button) => {
-                self.buttons.insert(button, ButtonState::JustPressed);
-            }
-            Event::ButtonReleased(button) => {
-                self.buttons.insert(button, ButtonState::JustReleased);
-            }
+            Event::ButtonPressed(button) => match self.buttons.get(&button) {
+                None | Some(ButtonState::Released | ButtonState::JustReleased) => {
+                    self.buttons.insert(button, ButtonState::JustPressed);
+                }
+                Some(ButtonState::Pressed | ButtonState::JustPressed) => {}
+            },
+            Event::ButtonReleased(button) => match self.buttons.get(&button) {
+                Some(ButtonState::Pressed | ButtonState::JustPressed) => {
+                    self.buttons.insert(button, ButtonState::JustReleased);
+                }
+                None | Some(ButtonState::Released | ButtonState::JustReleased) => {}
+            },
             Event::Axis1dChanged(_axis, _value) => todo!(),
             Event::Axis2dChanged(_axis, _value) => todo!(),
             Event::CursorMoved(x, y) => {
