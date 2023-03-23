@@ -8,6 +8,8 @@ use crate::event::Event;
 #[derive(Debug)]
 pub struct InputState {
     buttons: HashMap<Button, ButtonState>,
+    axes_1d: HashMap<Axis1d, f32>,
+    axes_2d: HashMap<Axis2d, [f32; 2]>,
     mouse_motion: [f32; 2],
     cursor_position: [f32; 2],
     viewport_position: [f32; 2],
@@ -34,6 +36,8 @@ impl InputState {
     pub fn new() -> Self {
         Self {
             buttons: HashMap::new(),
+            axes_1d: HashMap::new(),
+            axes_2d: HashMap::new(),
 
             mouse_motion: [0.0, 0.0],
             cursor_position: [0.0, 0.0],
@@ -96,7 +100,7 @@ impl InputState {
                 MouseAxis1d::X => self.mouse_motion[0],
                 MouseAxis1d::Y => self.mouse_motion[1],
             },
-            Axis1d::Gamepad(_) => todo!(),
+            Axis1d::Gamepad(axis) => self.axes_1d.get(&axis.into()).copied().unwrap_or(0.0),
         }
     }
 
@@ -156,8 +160,14 @@ impl InputState {
                 }
                 None | Some(ButtonState::Released | ButtonState::JustReleased) => {}
             },
-            Event::Axis1dChanged(_axis, _value) => todo!(),
-            Event::Axis2dChanged(_axis, _value) => todo!(),
+            Event::Axis1dChanged(axis, value) => {
+                let slot = self.axes_1d.entry(axis).or_default();
+                *slot = value;
+            }
+            Event::Axis2dChanged(axis, value) => {
+                let slot = self.axes_2d.entry(axis).or_default();
+                *slot = value;
+            }
             Event::CursorMoved(x, y) => {
                 self.cursor_position = [x, y];
             }
