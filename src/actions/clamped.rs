@@ -5,7 +5,7 @@ use super::ActionKind;
 
 /// Clamps an axis action, clamping the length of its values to a maximum of
 /// 1.0.
-#[derive(Debug)]
+#[derive(Debug, Default)]
 pub struct Clamped<T>(pub T);
 
 impl<T> ActionKind for Clamped<T>
@@ -59,7 +59,6 @@ mod test {
     }
 
     #[test]
-    #[ignore = "axis events are currentl unimplemented"]
     fn clamp_f32() {
         let mut state = InputState::new();
         let axis = Axis1d::Gamepad(GamepadAxis1d::LeftStickX);
