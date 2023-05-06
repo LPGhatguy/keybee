@@ -140,6 +140,11 @@ impl ActionSet {
         self.enabled.store(value, Ordering::SeqCst);
     }
 
+    /// Tells whether the action set is currently enabled.
+    pub fn enabled(&self) -> bool {
+        self.enabled.load(Ordering::SeqCst)
+    }
+
     /// Returns the name of the action set given when it was created.
     pub fn name(&self) -> &str {
         &self.name

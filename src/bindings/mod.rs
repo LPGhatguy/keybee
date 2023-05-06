@@ -7,7 +7,7 @@ use serde::{Deserialize, Serialize};
 pub use binding::*;
 
 /// Defines how inputs should be mapped to actions.
-#[derive(Debug, Serialize, Deserialize)]
+#[derive(Debug, Default, Serialize, Deserialize)]
 #[serde(transparent)]
 pub struct Bindings {
     pub action_sets: HashMap<String, ActionSetBindings>,
