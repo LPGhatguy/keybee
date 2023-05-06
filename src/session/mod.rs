@@ -140,6 +140,16 @@ impl ActionSet {
         self.enabled.store(value, Ordering::SeqCst);
     }
 
+    /// Enable all actions within this action set.
+    pub fn enable(&self) {
+        self.set_enabled(true);
+    }
+
+    /// Disable all actions within this action set.
+    pub fn disable(&self) {
+        self.set_enabled(false);
+    }
+
     /// Tells whether the action set is currently enabled.
     pub fn enabled(&self) -> bool {
         self.enabled.load(Ordering::SeqCst)
