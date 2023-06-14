@@ -100,6 +100,7 @@ keyboard! {
     F23(f23),
     F24(f24),
 
+    Tab(tab),
     Return(return),
 
     Up(up),
@@ -182,6 +183,7 @@ keyboard_winit! {
     F23 => F23,
     F24 => F24,
 
+    Tab => Tab,
     Return => Return,
 
     Up => Up,
