@@ -1,5 +1,5 @@
 use anyhow::bail;
-use winit::event::{DeviceEvent, ElementState, Event as WinitEvent, WindowEvent};
+use winit::event::{DeviceEvent, ElementState, Event as WinitEvent, MouseScrollDelta, WindowEvent};
 
 use crate::{Button, KeyboardKey, MouseButton};
 
@@ -46,6 +46,16 @@ impl<T> TryFrom<&WinitEvent<'_, T>> for Event {
                 event: DeviceEvent::MouseMotion { delta },
                 ..
             } => Ok(Event::MouseMotion(delta.0 as f32, delta.1 as f32)),
+
+            WinitEvent::DeviceEvent {
+                event: DeviceEvent::MouseWheel { delta },
+                ..
+            } => match delta {
+                MouseScrollDelta::LineDelta(x, y) => Ok(Event::MouseWheel(x * 16.0, y * 16.0)),
+                MouseScrollDelta::PixelDelta(offset) => {
+                    Ok(Event::MouseWheel(offset.x as f32, offset.y as f32))
+                }
+            },
 
             _ => bail!("cannot convert event"),
         }

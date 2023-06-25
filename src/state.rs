@@ -11,6 +11,7 @@ pub struct InputState {
     axes_1d: HashMap<Axis1d, f32>,
     axes_2d: HashMap<Axis2d, [f32; 2]>,
     mouse_motion: [f32; 2],
+    mouse_wheel: [f32; 2],
     cursor_position: [f32; 2],
     viewport_position: [f32; 2],
 }
@@ -40,6 +41,7 @@ impl InputState {
             axes_2d: HashMap::new(),
 
             mouse_motion: [0.0, 0.0],
+            mouse_wheel: [0.0, 0.0],
             cursor_position: [0.0, 0.0],
             viewport_position: [0.0, 0.0],
         }
@@ -97,6 +99,8 @@ impl InputState {
     pub fn get_axis1d(&self, axis: Axis1d) -> f32 {
         match axis {
             Axis1d::Mouse(mouse) => match mouse {
+                MouseAxis1d::WheelX => self.mouse_wheel[0],
+                MouseAxis1d::WheelY => self.mouse_wheel[1],
                 MouseAxis1d::X => self.mouse_motion[0],
                 MouseAxis1d::Y => self.mouse_motion[1],
             },
@@ -127,6 +131,7 @@ impl InputState {
     /// processing buttons being pressed or released.
     pub fn end_update(&mut self) {
         self.mouse_motion = [0.0, 0.0];
+        self.mouse_wheel = [0.0, 0.0];
 
         let mut to_remove = HashSet::new();
 
@@ -173,6 +178,9 @@ impl InputState {
             }
             Event::MouseMotion(x, y) => {
                 self.mouse_motion = [self.mouse_motion[0] + x, self.mouse_motion[1] + y];
+            }
+            Event::MouseWheel(x, y) => {
+                self.mouse_wheel = [self.mouse_wheel[0] + x, self.mouse_wheel[1] + y];
             }
         }
     }

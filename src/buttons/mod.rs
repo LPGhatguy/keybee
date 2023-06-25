@@ -314,6 +314,8 @@ define_device! {
     })
 
     Axis1d(MouseAxis1d {
+        WheelX(wheelx),
+        WheelY(wheely),
         X(x),
         Y(y),
     })

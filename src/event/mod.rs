@@ -20,4 +20,5 @@ pub enum Event {
     Axis2dChanged(Axis2d, [f32; 2]),
     CursorMoved(f32, f32),
     MouseMotion(f32, f32),
+    MouseWheel(f32, f32),
 }
