@@ -106,7 +106,7 @@ impl Session {
         input.end_update();
     }
 
-    pub fn state(&mut self) -> impl Deref<Target = InputState> + '_ {
+    pub fn state(&self) -> impl Deref<Target = InputState> + '_ {
         self.inner.input.read()
     }
 }
