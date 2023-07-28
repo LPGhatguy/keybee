@@ -47,8 +47,8 @@ impl<T> TryFrom<&WinitEvent<'_, T>> for Event {
                 ..
             } => Ok(Event::MouseMotion(delta.0 as f32, delta.1 as f32)),
 
-            WinitEvent::DeviceEvent {
-                event: DeviceEvent::MouseWheel { delta },
+            WinitEvent::WindowEvent {
+                event: WindowEvent::MouseWheel { delta, .. },
                 ..
             } => match delta {
                 MouseScrollDelta::LineDelta(x, y) => Ok(Event::MouseWheel(x * 16.0, y * 16.0)),
