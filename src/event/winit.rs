@@ -1,23 +1,24 @@
 use anyhow::bail;
 use winit::event::{DeviceEvent, ElementState, Event as WinitEvent, MouseScrollDelta, WindowEvent};
+use winit::keyboard::PhysicalKey;
 
 use crate::{Button, KeyboardKey, MouseButton};
 
 use super::Event;
 
-impl<T> TryFrom<&WinitEvent<'_, T>> for Event {
+impl<T> TryFrom<&WinitEvent<T>> for Event {
     type Error = anyhow::Error;
 
     fn try_from(event: &WinitEvent<T>) -> Result<Self, Self::Error> {
         match event {
             WinitEvent::WindowEvent {
-                event: WindowEvent::KeyboardInput { input, .. },
+                event: WindowEvent::KeyboardInput { event, .. },
                 ..
-            } => match input.virtual_keycode {
-                Some(keycode) => {
+            } => match event.physical_key {
+                PhysicalKey::Code(keycode) => {
                     let key = KeyboardKey::try_from(keycode)?;
 
-                    match input.state {
+                    match event.state {
                         ElementState::Pressed => Ok(Event::ButtonPressed(Button::Keyboard(key))),
                         ElementState::Released => Ok(Event::ButtonReleased(Button::Keyboard(key))),
                     }
@@ -62,7 +63,7 @@ impl<T> TryFrom<&WinitEvent<'_, T>> for Event {
     }
 }
 
-impl<T> TryFrom<WinitEvent<'_, T>> for Event {
+impl<T> TryFrom<WinitEvent<T>> for Event {
     type Error = anyhow::Error;
 
     fn try_from(event: WinitEvent<T>) -> Result<Self, Self::Error> {

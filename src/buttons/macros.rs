@@ -89,7 +89,7 @@ macro_rules! keyboard {
 macro_rules! keyboard_winit {
     ( $($key:ident => $winit:ident,)* ) => {
         #[cfg(feature = "winit")]
-        impl From<KeyboardKey> for winit::event::VirtualKeyCode {
+        impl From<KeyboardKey> for winit::keyboard::KeyCode {
             fn from(value: KeyboardKey) -> Self {
                 match value {
                     $( KeyboardKey::$key => Self::$winit, )*
@@ -98,12 +98,12 @@ macro_rules! keyboard_winit {
         }
 
         #[cfg(feature = "winit")]
-        impl TryFrom<winit::event::VirtualKeyCode> for KeyboardKey {
+        impl TryFrom<winit::keyboard::KeyCode> for KeyboardKey {
             type Error = anyhow::Error;
 
-            fn try_from(value: winit::event::VirtualKeyCode) -> Result<Self, Self::Error> {
+            fn try_from(value: winit::keyboard::KeyCode) -> Result<Self, Self::Error> {
                 match value {
-                    $( winit::event::VirtualKeyCode::$winit => Ok(Self::$key), )*
+                    $( winit::keyboard::KeyCode::$winit => Ok(Self::$key), )*
                     _ => anyhow::bail!("{:?} is not supported by keybee", value)
                 }
             }
