@@ -13,6 +13,7 @@ Keybee is built around straightforward core primitives:
 ### Features
 - `winit`: Enable support for winit events
 - `gilrs`: Enable support for gil-rs events
+- `sdl2`: Enable support for SDL2 events
 
 ### Getting Started
 ```rust
@@ -49,7 +50,6 @@ loop {
 
 ### Future Improvements
 - Support for multiple players
-- Other backends: SDL, others
 
 ## License
 

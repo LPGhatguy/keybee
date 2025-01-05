@@ -3,6 +3,9 @@
 #[macro_use]
 mod macros;
 
+#[cfg(feature = "sdl2")]
+mod sdl2;
+
 #[cfg(feature = "winit")]
 use winit::event::MouseButton as WinitMouseButton;
 

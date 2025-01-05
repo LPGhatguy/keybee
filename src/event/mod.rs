@@ -6,6 +6,9 @@ mod gilrs;
 #[cfg(feature = "winit")]
 mod winit;
 
+#[cfg(feature = "sdl2")]
+mod sdl2;
+
 /// Represents an input event that can be processed by the library.
 ///
 /// By enabling the `winit` or `gilrs` features, keybee supports converting
