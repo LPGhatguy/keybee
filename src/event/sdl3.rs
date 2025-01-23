@@ -1,14 +1,14 @@
-use sdl2::event::Event as SdlEvent;
+use sdl3::event::Event as SdlEvent;
 
 use crate::{Button, KeyboardKey, MouseButton};
 
 use super::Event;
 
 impl Event {
-    pub fn from_sdl2(event: &SdlEvent) -> Vec<Self> {
+    pub fn from_sdl3(event: &SdlEvent) -> Vec<Self> {
         match event {
             SdlEvent::MouseButtonDown { mouse_btn, .. } => {
-                let Some(button) = MouseButton::from_sdl2(*mouse_btn) else {
+                let Some(button) = MouseButton::from_sdl3(*mouse_btn) else {
                     return Vec::new();
                 };
 
@@ -16,7 +16,7 @@ impl Event {
             }
 
             SdlEvent::MouseButtonUp { mouse_btn, .. } => {
-                let Some(button) = MouseButton::from_sdl2(*mouse_btn) else {
+                let Some(button) = MouseButton::from_sdl3(*mouse_btn) else {
                     return Vec::new();
                 };
 
@@ -30,14 +30,10 @@ impl Event {
                 Event::CursorMoved(*x as f32, *y as f32),
             ],
 
-            SdlEvent::MouseWheel {
-                precise_x,
-                precise_y,
-                ..
-            } => vec![Event::MouseWheel(*precise_x, *precise_y)],
+            SdlEvent::MouseWheel { x, y, .. } => vec![Event::MouseWheel(*x, *y)],
 
             SdlEvent::KeyDown { scancode, .. } => {
-                let Some(key) = scancode.and_then(KeyboardKey::from_sdl2) else {
+                let Some(key) = scancode.and_then(KeyboardKey::from_sdl3) else {
                     return Vec::new();
                 };
 
@@ -45,7 +41,7 @@ impl Event {
             }
 
             SdlEvent::KeyUp { scancode, .. } => {
-                let Some(key) = scancode.and_then(KeyboardKey::from_sdl2) else {
+                let Some(key) = scancode.and_then(KeyboardKey::from_sdl3) else {
                     return Vec::new();
                 };
 

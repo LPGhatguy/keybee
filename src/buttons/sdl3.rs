@@ -1,10 +1,10 @@
-use sdl2::keyboard::Scancode;
-use sdl2::mouse::MouseButton as SdlMouseButton;
+use sdl3::keyboard::Scancode;
+use sdl3::mouse::MouseButton as SdlMouseButton;
 
 use super::{KeyboardKey, MouseButton};
 
 impl MouseButton {
-    pub fn from_sdl2(sdl: SdlMouseButton) -> Option<Self> {
+    pub fn from_sdl3(sdl: SdlMouseButton) -> Option<Self> {
         match sdl {
             SdlMouseButton::Left => Some(Self::Button1),
             SdlMouseButton::Right => Some(Self::Button2),
@@ -17,7 +17,7 @@ impl MouseButton {
 }
 
 impl KeyboardKey {
-    pub fn from_sdl2(sdl: Scancode) -> Option<Self> {
+    pub fn from_sdl3(sdl: Scancode) -> Option<Self> {
         match sdl {
             Scancode::A => Some(Self::A),
             Scancode::B => Some(Self::B),
@@ -46,16 +46,16 @@ impl KeyboardKey {
             Scancode::Y => Some(Self::Y),
             Scancode::Z => Some(Self::Z),
 
-            Scancode::Num0 => Some(Self::Zero),
-            Scancode::Num1 => Some(Self::One),
-            Scancode::Num2 => Some(Self::Two),
-            Scancode::Num3 => Some(Self::Three),
-            Scancode::Num4 => Some(Self::Four),
-            Scancode::Num5 => Some(Self::Five),
-            Scancode::Num6 => Some(Self::Six),
-            Scancode::Num7 => Some(Self::Seven),
-            Scancode::Num8 => Some(Self::Eight),
-            Scancode::Num9 => Some(Self::Nine),
+            Scancode::_0 => Some(Self::Zero),
+            Scancode::_1 => Some(Self::One),
+            Scancode::_2 => Some(Self::Two),
+            Scancode::_3 => Some(Self::Three),
+            Scancode::_4 => Some(Self::Four),
+            Scancode::_5 => Some(Self::Five),
+            Scancode::_6 => Some(Self::Six),
+            Scancode::_7 => Some(Self::Seven),
+            Scancode::_8 => Some(Self::Eight),
+            Scancode::_9 => Some(Self::Nine),
 
             Scancode::F1 => Some(Self::F1),
             Scancode::F2 => Some(Self::F2),
