@@ -30,7 +30,7 @@ impl Event {
                 Event::CursorMoved(*x as f32, *y as f32),
             ],
 
-            SdlEvent::MouseWheel { x, y, .. } => vec![Event::MouseWheel(*x, *y)],
+            SdlEvent::MouseWheel { x, y, .. } => vec![Event::MouseWheel(*x * 16.0, *y * 16.0)],
 
             SdlEvent::KeyDown { scancode, .. } => {
                 let Some(key) = scancode.and_then(KeyboardKey::from_sdl3) else {

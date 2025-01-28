@@ -34,7 +34,7 @@ impl Event {
                 precise_x,
                 precise_y,
                 ..
-            } => vec![Event::MouseWheel(*precise_x, *precise_y)],
+            } => vec![Event::MouseWheel(*precise_x * 16.0, *precise_y * 16.0)],
 
             SdlEvent::KeyDown { scancode, .. } => {
                 let Some(key) = scancode.and_then(KeyboardKey::from_sdl2) else {
