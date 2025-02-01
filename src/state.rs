@@ -16,20 +16,11 @@ pub struct InputState {
     viewport_position: [f32; 2],
 }
 
-/// The current state of a button.
-#[derive(Debug, Clone, Copy, PartialEq, Eq)]
-pub enum ButtonState {
-    /// The button was pressed this update.
-    JustPressed,
-
-    /// The button was released this update.
-    JustReleased,
-
-    /// The button has been pressed since before this update.
-    Pressed,
-
-    /// The button has been released since before this update.
-    Released,
+#[derive(Debug, Default, Clone, Copy, PartialEq, Eq)]
+pub struct ButtonState {
+    pub just_pressed: bool,
+    pub just_released: bool,
+    pub pressed: bool,
 }
 
 impl InputState {
@@ -58,41 +49,47 @@ impl InputState {
         self.buttons
             .get(&button.into())
             .copied()
-            .unwrap_or(ButtonState::Released)
+            .unwrap_or(Default::default())
     }
 
     /// Tells whether the given button was pressed this update.
     pub fn is_button_just_down<B: Into<Button>>(&self, button: B) -> bool {
         let button = button.into();
 
-        matches!(self.buttons.get(&button), Some(ButtonState::JustPressed))
+        self.buttons
+            .get(&button)
+            .map(|state| state.just_pressed)
+            .unwrap_or(false)
     }
 
     /// Tells whether the given button was released this update.
     pub fn is_button_just_up<B: Into<Button>>(&self, button: B) -> bool {
         let button = button.into();
 
-        matches!(self.buttons.get(&button), Some(ButtonState::JustReleased))
+        self.buttons
+            .get(&button)
+            .map(|state| state.just_released)
+            .unwrap_or(false)
     }
 
     /// Tells whether the given button is currently pressed.
     pub fn is_button_down<B: Into<Button>>(&self, button: B) -> bool {
         let button = button.into();
 
-        matches!(
-            self.buttons.get(&button),
-            Some(ButtonState::Pressed | ButtonState::JustPressed)
-        )
+        self.buttons
+            .get(&button)
+            .map(|state| state.just_pressed || state.pressed)
+            .unwrap_or(false)
     }
 
     /// Tells whether the given button is currently released.
     pub fn is_button_up<B: Into<Button>>(&self, button: B) -> bool {
         let button = button.into();
 
-        matches!(
-            self.buttons.get(&button),
-            None | Some(ButtonState::Released | ButtonState::JustReleased)
-        )
+        self.buttons
+            .get(&button)
+            .map(|state| !state.pressed)
+            .unwrap_or(true)
     }
 
     /// Tells the state of the given axis.
@@ -136,12 +133,11 @@ impl InputState {
         let mut to_remove = HashSet::new();
 
         for (button, state) in self.buttons.iter_mut() {
-            match state {
-                ButtonState::JustPressed => *state = ButtonState::Pressed,
-                ButtonState::JustReleased => {
-                    to_remove.insert(*button);
-                }
-                _ => {}
+            state.just_pressed = false;
+            state.just_released = false;
+
+            if !state.pressed {
+                to_remove.insert(*button);
             }
         }
 
@@ -153,18 +149,16 @@ impl InputState {
     /// Handle the given event and update input state accordingly.
     pub fn handle_event(&mut self, event: Event) {
         match event {
-            Event::ButtonPressed(button) => match self.buttons.get(&button) {
-                None | Some(ButtonState::Released | ButtonState::JustReleased) => {
-                    self.buttons.insert(button, ButtonState::JustPressed);
-                }
-                Some(ButtonState::Pressed | ButtonState::JustPressed) => {}
-            },
-            Event::ButtonReleased(button) => match self.buttons.get(&button) {
-                Some(ButtonState::Pressed | ButtonState::JustPressed) => {
-                    self.buttons.insert(button, ButtonState::JustReleased);
-                }
-                None | Some(ButtonState::Released | ButtonState::JustReleased) => {}
-            },
+            Event::ButtonPressed(button) => {
+                let state = self.buttons.entry(button).or_default();
+                state.just_pressed = true;
+                state.pressed = true;
+            }
+            Event::ButtonReleased(button) => {
+                let state = self.buttons.entry(button).or_default();
+                state.just_released = true;
+                state.pressed = false;
+            }
             Event::Axis1dChanged(axis, value) => {
                 let slot = self.axes_1d.entry(axis).or_default();
                 *slot = value;
@@ -195,22 +189,74 @@ mod test {
     #[test]
     fn button_state_transition() {
         let mut state = InputState::new();
-        assert_eq!(state.button_state(KeyboardKey::W), ButtonState::Released);
+        assert_eq!(state.button_state(KeyboardKey::W), ButtonState::default());
 
         state.handle_event(Event::ButtonPressed(KeyboardKey::W.into()));
-        assert_eq!(state.button_state(KeyboardKey::W), ButtonState::JustPressed);
+        assert_eq!(
+            state.button_state(KeyboardKey::W),
+            ButtonState {
+                pressed: true,
+                just_pressed: true,
+                just_released: false,
+            }
+        );
+        assert!(state.is_button_down(KeyboardKey::W));
+        assert!(state.is_button_just_down(KeyboardKey::W));
+        assert!(!state.is_button_just_up(KeyboardKey::W));
+        assert!(!state.is_button_up(KeyboardKey::W));
 
         state.end_update();
-        assert_eq!(state.button_state(KeyboardKey::W), ButtonState::Pressed);
+        assert_eq!(
+            state.button_state(KeyboardKey::W),
+            ButtonState {
+                pressed: true,
+                just_pressed: false,
+                just_released: false,
+            }
+        );
+        assert!(state.is_button_down(KeyboardKey::W));
+        assert!(!state.is_button_just_down(KeyboardKey::W));
+        assert!(!state.is_button_just_up(KeyboardKey::W));
+        assert!(!state.is_button_up(KeyboardKey::W));
 
         state.handle_event(Event::ButtonReleased(KeyboardKey::W.into()));
         assert_eq!(
             state.button_state(KeyboardKey::W),
-            ButtonState::JustReleased
+            ButtonState {
+                pressed: false,
+                just_pressed: false,
+                just_released: true,
+            }
         );
+        assert!(!state.is_button_down(KeyboardKey::W));
+        assert!(!state.is_button_just_down(KeyboardKey::W));
+        assert!(state.is_button_just_up(KeyboardKey::W));
+        assert!(state.is_button_up(KeyboardKey::W));
 
         state.end_update();
-        assert_eq!(state.button_state(KeyboardKey::W), ButtonState::Released);
+        assert_eq!(state.button_state(KeyboardKey::W), ButtonState::default());
+        assert!(!state.is_button_down(KeyboardKey::W));
+        assert!(!state.is_button_just_down(KeyboardKey::W));
+        assert!(!state.is_button_just_up(KeyboardKey::W));
+        assert!(state.is_button_up(KeyboardKey::W));
+
+        state.handle_event(Event::ButtonPressed(KeyboardKey::W.into()));
+        state.handle_event(Event::ButtonReleased(KeyboardKey::W.into()));
+        assert_eq!(
+            state.button_state(KeyboardKey::W),
+            ButtonState {
+                pressed: false,
+                just_pressed: true,
+                just_released: true,
+            }
+        );
+        assert!(state.is_button_down(KeyboardKey::W));
+        assert!(state.is_button_just_down(KeyboardKey::W));
+        assert!(state.is_button_just_up(KeyboardKey::W));
+        assert!(state.is_button_up(KeyboardKey::W));
+
+        state.end_update();
+        assert_eq!(state.button_state(KeyboardKey::W), ButtonState::default());
     }
 
     #[test]
