@@ -29,9 +29,10 @@ macro_rules! wrapper_enum {
             fn from_str(s: &str) -> Result<Self, Self::Err> {
                 let mut pieces = s.splitn(2, '/');
                 let device = pieces.next().unwrap();
+                let inner = anyhow::Context::context(pieces.next(), "invalid keybee def; expected 'device/button'")?;
 
                 match device {
-                    $( stringify!($inner_name) => Ok(Self::$variant(s.parse()?)), )*
+                    $( stringify!($inner_name) => Ok(Self::$variant(inner.parse()?)), )*
                     _ => anyhow::bail!("invalid keybee device '{}'", device),
                 }
             }
@@ -70,7 +71,7 @@ macro_rules! keyboard {
 
             fn from_str(s: &str) -> Result<Self, Self::Err> {
                 match s {
-                    $( concat!("keyboard/", stringify!($name)) => Ok(Self::$variant), )*
+                    $( stringify!($name) => Ok(Self::$variant), )*
                     _ => anyhow::bail!("unknown keyboard key '{}'", s),
                 }
             }
@@ -142,7 +143,7 @@ macro_rules! define_device {
                 fn from_str(s: &str) -> Result<Self, Self::Err> {
                     match s {
                         $( stringify!($name) => Ok(Self::$variant), )*
-                        _ => anyhow::bail!("unknown {} input '{}'", stringify!(input_name), s),
+                        _ => anyhow::bail!("unknown {} input '{}'", stringify!($input_name), s),
                     }
                 }
             }
@@ -167,8 +168,7 @@ macro_rules! define_device {
             fn from_str(s: &str) -> Result<Self, Self::Err> {
                 match s {
                     $(
-                        $( concat!(stringify!($input_name), "/", stringify!($name))
-                            => Ok(Self::$enum_variant($enum::$variant)), )*
+                        $( stringify!($name) => Ok(Self::$enum_variant($enum::$variant)), )*
                     )*
                     _ => anyhow::bail!("unknown {} input '{}'", stringify!($input_name), s),
                 }
