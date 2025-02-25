@@ -35,7 +35,7 @@ impl Event {
             SdlEvent::KeyDown {
                 scancode, repeat, ..
             } => {
-                if repeat {
+                if *repeat {
                     return Vec::new();
                 }
 
@@ -49,7 +49,7 @@ impl Event {
             SdlEvent::KeyUp {
                 scancode, repeat, ..
             } => {
-                if repeat {
+                if *repeat {
                     return Vec::new();
                 }
 
