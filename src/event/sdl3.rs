@@ -32,7 +32,13 @@ impl Event {
 
             SdlEvent::MouseWheel { x, y, .. } => vec![Event::MouseWheel(*x * 16.0, *y * 16.0)],
 
-            SdlEvent::KeyDown { scancode, .. } => {
+            SdlEvent::KeyDown {
+                scancode, repeat, ..
+            } => {
+                if repeat {
+                    return Vec::new();
+                }
+
                 let Some(key) = scancode.and_then(KeyboardKey::from_sdl3) else {
                     return Vec::new();
                 };
@@ -40,7 +46,13 @@ impl Event {
                 vec![Event::ButtonPressed(Button::Keyboard(key))]
             }
 
-            SdlEvent::KeyUp { scancode, .. } => {
+            SdlEvent::KeyUp {
+                scancode, repeat, ..
+            } => {
+                if repeat {
+                    return Vec::new();
+                }
+
                 let Some(key) = scancode.and_then(KeyboardKey::from_sdl3) else {
                     return Vec::new();
                 };
